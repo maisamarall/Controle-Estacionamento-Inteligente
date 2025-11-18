@@ -5,7 +5,6 @@ require_once __DIR__ . '/../Database/MySQLConnection.php';
 require_once __DIR__ . '/../../Domain/Entities/Vehicle.php';
 require_once __DIR__ . '/../../Domain/Interfaces/ParkingRepositoryInterface.php';
 
-
 class ParkingRepository implements ParkingRepositoryInterface
 {
     private PDO $conn;
@@ -15,35 +14,47 @@ class ParkingRepository implements ParkingRepositoryInterface
         $this->conn = MySQLConnection::getConnection();
     }
 
-    public function registerEntry(Vehicle $vehicle): int
+    public function saveEntry(Vehicle $vehicle): bool
     {
-        $sql = "INSERT INTO vehicles (plate, type, entry_time) VALUES (:plate, :type, :entry_time)";
+        $sql = "INSERT INTO vehicles (plate, type, entry_time)
+                VALUES (:plate, :type, :entry_time)";
+
         $stmt = $this->conn->prepare($sql);
 
         $stmt->bindValue(':plate', $vehicle->getPlate());
         $stmt->bindValue(':type', $vehicle->getType());
-        $stmt->bindValue(':entry_time', $vehicle->getEntryTime()->format('Y-m-d H:i:s'));
+        $stmt->bindValue(':entry_time', $vehicle->entryTime->format('Y-m-d H:i:s'));
 
-        $stmt->execute();
-        return intval($this->conn->lastInsertId());
+        return $stmt->execute();
     }
 
-    public function registerLeave(int $vehicleId): void
+    public function saveLeave(Vehicle $vehicle): bool
     {
-        $sql = "UPDATE vehicles SET leave_time = :leave_time WHERE id = :id";
+        $sql = "UPDATE vehicles 
+                SET leave_time = :leave_time
+                WHERE id = :id";
+
         $stmt = $this->conn->prepare($sql);
 
-        $stmt->bindValue(':leave_time', (new DateTime())->format('Y-m-d H:i:s'));
-        $stmt->bindValue(':id', $vehicleId);
+        $stmt->bindValue(':leave_time', $vehicle->leaveTime
+            ? $vehicle->leaveTime->format('Y-m-d H:i:s')
+            : (new DateTime())->format('Y-m-d H:i:s')
+        );
 
-        $stmt->execute();
+        $stmt->bindValue(':id', $vehicle->id);
+
+        return $stmt->execute();
     }
 
-    public function findById(int $id): ?Vehicle
+    public function findByPlate(string $plate): ?Vehicle
     {
-        $sql = "SELECT * FROM vehicles WHERE id = :id";
+        $sql = "SELECT * FROM vehicles 
+                WHERE plate = :plate 
+                ORDER BY id DESC 
+                LIMIT 1";
+
         $stmt = $this->conn->prepare($sql);
-        $stmt->bindValue(':id', $id);
+        $stmt->bindValue(':plate', $plate);
         $stmt->execute();
 
         $data = $stmt->fetch(PDO::FETCH_ASSOC);
@@ -53,25 +64,26 @@ class ParkingRepository implements ParkingRepositoryInterface
         }
 
         $vehicle = new Vehicle($data['plate'], $data['type']);
-        $vehicle->setId($data['id']);
+        $vehicle->id = $data['id'];
         $vehicle->entryTime = new DateTime($data['entry_time']);
         $vehicle->leaveTime = $data['leave_time'] ? new DateTime($data['leave_time']) : null;
 
         return $vehicle;
     }
 
-    public function listActive(): array
+    public function listAll(): array
     {
-        $sql = "SELECT * FROM vehicles WHERE leave_time IS NULL";
+        $sql = "SELECT * FROM vehicles ORDER BY entry_time DESC";
         $stmt = $this->conn->query($sql);
 
         $vehicles = [];
 
         while ($data = $stmt->fetch(PDO::FETCH_ASSOC)) {
             $vehicle = new Vehicle($data['plate'], $data['type']);
-            $vehicle->setId($data['id']);
+            $vehicle->id = $data['id'];
             $vehicle->entryTime = new DateTime($data['entry_time']);
-            $vehicle->leaveTime = null;
+            $vehicle->leaveTime = $data['leave_time'] ? new DateTime($data['leave_time']) : null;
+
             $vehicles[] = $vehicle;
         }
 

@@ -8,9 +8,9 @@ class MySQLConnection
     {
         if (self::$connection === null) {
             $host = "localhost";
-            $db   = "estacionamento"; // Altere para o nome do seu banco
-            $user = "root";           // Usuário
-            $pass = "mybabykooksi93";  // Senha, se houver
+            $db   = "estacionamento"; //nome do banco de dados
+            $user = "root";          
+            $pass = "mybabykooksi93";  //senha do banco de dados
             $charset = "utf8mb4";
 
             $dsn = "mysql:host=$host;dbname=$db;charset=$charset";
