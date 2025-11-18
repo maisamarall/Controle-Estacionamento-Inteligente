@@ -1,99 +1,136 @@
 <?php
-// src/Infra/Repositories/VehicleRepository.php
 
-require_once __DIR__ . '/../Database/MySQLConnection.php';
-require_once __DIR__ . '/../../Domain/Entities/Vehicle.php';
-require_once __DIR__ . '/../../Domain/Interfaces/VehicleRepositoryInterface.php';
+declare(strict_types=1);
+
+namespace App\Infra\Repositories;
+
+use App\Domain\Entities\Vehicle;
+use App\Domain\Interfaces\VehicleRepositoryInterface;
 
 class VehicleRepository implements VehicleRepositoryInterface
 {
-    private PDO $conn;
+    private string $filePath;
 
-    public function __construct()
+    public function __construct(string $filePath = __DIR__ . '/../../../storage/vehicles.jsonl')
     {
-        $this->conn = MySQLConnection::getConnection();
-    }
+        $this->filePath = $filePath;
 
-    public function create(Vehicle $vehicle): bool
-    {
-        $sql = "INSERT INTO vehicles (plate, type, entry_time, leave_time) 
-                VALUES (:plate, :type, :entry_time, :leave_time)";
+        $dir = dirname($this->filePath);
+        if (!is_dir($dir)) {
+            mkdir($dir, 0777, true);
+        }
 
-        $stmt = $this->conn->prepare($sql);
-
-        $stmt->bindValue(':plate', $vehicle->getPlate());
-        $stmt->bindValue(':type', $vehicle->getType());
-        $stmt->bindValue(':entry_time', $vehicle->entryTime->format('Y-m-d H:i:s'));
-        $stmt->bindValue(':leave_time', $vehicle->leaveTime ? $vehicle->leaveTime->format('Y-m-d H:i:s') : null);
-
-        return $stmt->execute();
+        if (!file_exists($this->filePath)) {
+            touch($this->filePath);
+        }
     }
 
     public function getAll(): array
     {
-        $sql = "SELECT * FROM vehicles ORDER BY id DESC";
-        $stmt = $this->conn->query($sql);
-
-        $vehicles = [];
-
-        while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
-            $vehicle = new Vehicle($row['plate'], $row['type']);
-            $vehicle->id = $row['id'];
-            $vehicle->entryTime = new DateTime($row['entry_time']);
-            $vehicle->leaveTime = $row['leave_time'] ? new DateTime($row['leave_time']) : null;
-
-            $vehicles[] = $vehicle;
+        if (!file_exists($this->filePath)) {
+            return [];
         }
 
-        return $vehicles;
+        $lines = file($this->filePath, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
+
+        return array_map(function ($line) {
+            $data = json_decode($line, true);
+            return $this->arrayToVehicle($data);
+        }, $lines);
     }
 
     public function getById(int $id): ?Vehicle
     {
-        $sql = "SELECT * FROM vehicles WHERE id = :id LIMIT 1";
-        $stmt = $this->conn->prepare($sql);
-        $stmt->bindValue(":id", $id);
-        $stmt->execute();
-
-        $row = $stmt->fetch(PDO::FETCH_ASSOC);
-
-        if (!$row) {
-            return null;
+        foreach ($this->getAll() as $vehicle) {
+            if ($vehicle->id === $id) {
+                return $vehicle;
+            }
         }
 
-        $vehicle = new Vehicle($row['plate'], $row['type']);
-        $vehicle->id = $row['id'];
-        $vehicle->entryTime = new DateTime($row['entry_time']);
-        $vehicle->leaveTime = $row['leave_time'] ? new DateTime($row['leave_time']) : null;
+        return null;
+    }
 
-        return $vehicle;
+    public function create(Vehicle $vehicle): int
+    {
+        $existing = $this->getAll();
+        $lastId = empty($existing) ? 0 : end($existing)->id;
+
+        $vehicle->id = $lastId + 1;
+
+        file_put_contents(
+            $this->filePath,
+            json_encode($this->vehicleToArray($vehicle), JSON_UNESCAPED_UNICODE) . PHP_EOL,
+            FILE_APPEND
+        );
+
+        return $vehicle->id;
     }
 
     public function update(Vehicle $vehicle): bool
     {
-        $sql = "UPDATE vehicles 
-                SET plate = :plate,
-                    type = :type,
-                    entry_time = :entry_time,
-                    leave_time = :leave_time
-                WHERE id = :id";
+        $vehicles = $this->getAll();
+        $updated = false;
 
-        $stmt = $this->conn->prepare($sql);
+        $newList = array_map(function ($v) use ($vehicle, &$updated) {
+            if ($v->id === $vehicle->id) {
+                $updated = true;
+                return $vehicle;
+            }
+            return $v;
+        }, $vehicles);
 
-        $stmt->bindValue(":plate", $vehicle->plate);
-        $stmt->bindValue(":type", $vehicle->type);
-        $stmt->bindValue(":entry_time", $vehicle->entryTime->format('Y-m-d H:i:s'));
-        $stmt->bindValue(":leave_time", $vehicle->leaveTime ? $vehicle->leaveTime->format('Y-m-d H:i:s') : null);
-        $stmt->bindValue(":id", $vehicle->id);
+        if (!$updated) {
+            return false;
+        }
 
-        return $stmt->execute();
+        $this->writeAll($newList);
+        return true;
     }
 
     public function delete(int $id): bool
     {
-        $sql = "DELETE FROM vehicles WHERE id = :id";
-        $stmt = $this->conn->prepare($sql);
-        $stmt->bindValue(":id", $id);
-        return $stmt->execute();
+        $vehicles = $this->getAll();
+        $filtered = array_filter($vehicles, fn($v) => $v->id !== $id);
+
+        if (count($filtered) === count($vehicles)) {
+            return false;
+        }
+
+        $this->writeAll(array_values($filtered));
+        return true;
+    }
+
+    private function vehicleToArray(Vehicle $v): array
+    {
+        return [
+            'id' => $v->id,
+            'plate' => $v->plate,
+            'type' => $v->type,
+            'entryTime' => $v->entryTime?->format('Y-m-d H:i:s'),
+            'leaveTime' => $v->leaveTime?->format('Y-m-d H:i:s'),
+        ];
+    }
+
+    private function arrayToVehicle(array $data): Vehicle
+    {
+        $vehicle = new Vehicle($data['plate'], $data['type']);
+        $vehicle->id = $data['id'];
+        $vehicle->entryTime = new \DateTime($data['entryTime']);
+
+        $vehicle->leaveTime = isset($data['leaveTime']) && $data['leaveTime']
+            ? new \DateTime($data['leaveTime'])
+            : null;
+
+        return $vehicle;
+    }
+
+    private function writeAll(array $vehicles): void
+    {
+        $lines = array_map(
+            fn($v) => json_encode($this->vehicleToArray($v), JSON_UNESCAPED_UNICODE),
+            $vehicles
+        );
+
+        file_put_contents($this->filePath, implode(PHP_EOL, $lines) . PHP_EOL);
     }
 }

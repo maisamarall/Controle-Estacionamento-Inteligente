@@ -5,7 +5,7 @@
     "license": "MIT",
     "autoload": {
         "psr-4": {
-            "App\\ControleEstacionamentoInteligente\\": "src/"
+            "App\\": "src/"
         }
     },
     "authors": [
@@ -13,6 +13,5 @@
             "name": "Maisa"
         }
     ],
-    "minimum-stability": "dev",
     "require": {}
 }

@@ -6,6 +6,7 @@ namespace App\Application\Services;
 
 use App\Domain\Entities\Vehicle;
 use App\Domain\Interfaces\ParkingRepositoryInterface;
+use DateTime;
 
 class ParkingService
 {
@@ -16,19 +17,34 @@ class ParkingService
         $this->repository = $repository;
     }
 
-    public function registerEntry(string $plate, string $type): int
+    public function registerEntry(string $plate, string $type): bool
     {
         $vehicle = new Vehicle($plate, $type);
-        return $this->repository->registerEntry($vehicle);
+        $vehicle->entryTime = new DateTime();
+
+        return $this->repository->saveEntry($vehicle);
     }
 
-    public function registerLeave(int $vehicleId): void
+    public function registerLeave(string $plate): bool
     {
-        $this->repository->registerLeave($vehicleId);
+        $vehicle = $this->repository->findByPlate($plate);
+
+        if (!$vehicle) {
+            return false;
+        }
+
+        $vehicle->leaveTime = new DateTime();
+
+        return $this->repository->saveLeave($vehicle);
     }
 
-    public function findVehicleById(int $id): ?Vehicle
+    public function findByPlate(string $plate): ?Vehicle
     {
-        return $this->repository->findById($id);
+        return $this->repository->findByPlate($plate);
+    }
+
+    public function listAll(): array
+    {
+        return $this->repository->listAll();
     }
 }

@@ -1,92 +1,144 @@
 <?php
-// src/Infra/Repositories/ParkingRepository.php
+declare(strict_types=1);
 
-require_once __DIR__ . '/../Database/MySQLConnection.php';
-require_once __DIR__ . '/../../Domain/Entities/Vehicle.php';
-require_once __DIR__ . '/../../Domain/Interfaces/ParkingRepositoryInterface.php';
+namespace App\Infra\Repositories;
+
+use App\Domain\Entities\Vehicle;
+use App\Domain\Interfaces\ParkingRepositoryInterface;
+use DateTime;
 
 class ParkingRepository implements ParkingRepositoryInterface
 {
-    private PDO $conn;
+    private string $filePath;
 
-    public function __construct()
+    public function __construct(string $filePath = __DIR__ . '/../../../storage/parking.jsonl')
     {
-        $this->conn = MySQLConnection::getConnection();
+        $this->filePath = $filePath;
+
+        $dir = dirname($this->filePath);
+
+        if (!is_dir($dir)) {
+            mkdir($dir, 0777, true);
+        }
+
+        if (!file_exists($this->filePath)) {
+            touch($this->filePath);
+        }
+    }
+
+    /** 
+     * @return Vehicle[]
+     */
+
+    private function readAll(): array
+    {
+        if (!file_exists($this->filePath)) {
+            return [];
+        }
+
+        $lines = file($this->filePath, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
+
+        return array_map(function ($line) {
+            $data = json_decode($line, true);
+            return $this->arrayToVehicle($data);
+        }, $lines);
+    }
+
+    /**
+     * @param Vehicle[] $vehicles
+     */
+
+    private function writeAll(array $vehicles): void
+    {
+        $lines = array_map(
+            fn($v) => json_encode($this->vehicleToArray($v), JSON_UNESCAPED_UNICODE),
+            $vehicles
+        );
+
+        file_put_contents($this->filePath, implode(PHP_EOL, $lines) . PHP_EOL);
     }
 
     public function saveEntry(Vehicle $vehicle): bool
     {
-        $sql = "INSERT INTO vehicles (plate, type, entry_time)
-                VALUES (:plate, :type, :entry_time)";
+        $existing = $this->readAll();
+        $lastId = empty($existing) ? 0 : end($existing)->id;
 
-        $stmt = $this->conn->prepare($sql);
+        $vehicle->id = $lastId + 1;
 
-        $stmt->bindValue(':plate', $vehicle->getPlate());
-        $stmt->bindValue(':type', $vehicle->getType());
-        $stmt->bindValue(':entry_time', $vehicle->entryTime->format('Y-m-d H:i:s'));
+        $written = file_put_contents(
+            $this->filePath,
+            json_encode($this->vehicleToArray($vehicle), JSON_UNESCAPED_UNICODE) . PHP_EOL,
+            FILE_APPEND
+        );
 
-        return $stmt->execute();
+        return $written !== false;
     }
 
     public function saveLeave(Vehicle $vehicle): bool
     {
-        $sql = "UPDATE vehicles 
-                SET leave_time = :leave_time
-                WHERE id = :id";
+        $vehicles = $this->readAll();
+        $updated = false;
 
-        $stmt = $this->conn->prepare($sql);
+        $newList = array_map(function ($v) use ($vehicle, &$updated) {
+            if ($v->id === $vehicle->id) {
+                $updated = true;
+                $v->leaveTime = $vehicle->leaveTime ?? new DateTime();
+                return $v;
+            }
+            return $v;
+        }, $vehicles);
 
-        $stmt->bindValue(':leave_time', $vehicle->leaveTime
-            ? $vehicle->leaveTime->format('Y-m-d H:i:s')
-            : (new DateTime())->format('Y-m-d H:i:s')
-        );
+        if (!$updated) {
+            return false;
+        }
 
-        $stmt->bindValue(':id', $vehicle->id);
-
-        return $stmt->execute();
+        $this->writeAll($newList);
+        return true;
     }
 
     public function findByPlate(string $plate): ?Vehicle
     {
-        $sql = "SELECT * FROM vehicles 
-                WHERE plate = :plate 
-                ORDER BY id DESC 
-                LIMIT 1";
+        $records = $this->readAll();
 
-        $stmt = $this->conn->prepare($sql);
-        $stmt->bindValue(':plate', $plate);
-        $stmt->execute();
+        $matches = array_filter($records, fn($v) => $v->plate === $plate);
 
-        $data = $stmt->fetch(PDO::FETCH_ASSOC);
-
-        if (!$data) {
+        if (empty($matches)) {
             return null;
         }
 
-        $vehicle = new Vehicle($data['plate'], $data['type']);
-        $vehicle->id = $data['id'];
-        $vehicle->entryTime = new DateTime($data['entry_time']);
-        $vehicle->leaveTime = $data['leave_time'] ? new DateTime($data['leave_time']) : null;
-
-        return $vehicle;
+        return array_values($matches)[count($matches) - 1];
     }
+
+    /**
+     * @return Vehicle[]
+     */
 
     public function listAll(): array
     {
-        $sql = "SELECT * FROM vehicles ORDER BY entry_time DESC";
-        $stmt = $this->conn->query($sql);
+        return $this->readAll();
+    }
 
-        $vehicles = [];
+    private function vehicleToArray(Vehicle $v): array
+    {
+        return [
+            'id'         => $v->id,
+            'plate'      => $v->plate,
+            'type'       => $v->type,
+            'entryTime'  => $v->entryTime?->format('Y-m-d H:i:s'),
+            'leaveTime'  => $v->leaveTime?->format('Y-m-d H:i:s'),
+        ];
+    }
 
-        while ($data = $stmt->fetch(PDO::FETCH_ASSOC)) {
-            $vehicle = new Vehicle($data['plate'], $data['type']);
-            $vehicle->id = $data['id'];
-            $vehicle->entryTime = new DateTime($data['entry_time']);
-            $vehicle->leaveTime = $data['leave_time'] ? new DateTime($data['leave_time']) : null;
+    private function arrayToVehicle(array $data): Vehicle
+    {
+        $vehicle = new Vehicle($data['plate'], $data['type']);
+        $vehicle->id = $data['id'];
+        $vehicle->entryTime = new DateTime($data['entryTime']);
 
-            $vehicles[] = $vehicle;
-        }
+        $vehicle->leaveTime = isset($data['leaveTime']) && $data['leaveTime']
+            ? new DateTime($data['leaveTime'])
+            : null;
 
-        return $vehicles;
+        return $vehicle;
     }
 }
