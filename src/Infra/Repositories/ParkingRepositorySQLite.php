@@ -97,20 +97,6 @@ class ParkingRepositorySQLite implements ParkingRepositoryInterface
         return $vehicles;
     }
 
-    public function listActive(): array
-    {
-        $sql = "SELECT * FROM vehicles WHERE leave_time IS NULL ORDER BY entry_time DESC";
-        $stmt = $this->conn->query($sql);
-
-        $vehicles = [];
-
-        while ($data = $stmt->fetch(PDO::FETCH_ASSOC)) {
-            $vehicles[] = $this->mapToVehicle($data);
-        }
-
-        return $vehicles;
-    }
-
     private function mapToVehicle(array $data): Vehicle
     {
         $vehicle = new Vehicle($data['plate'], $data['type']);

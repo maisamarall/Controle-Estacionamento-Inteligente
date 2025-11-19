@@ -11,5 +11,4 @@ interface ParkingRepositoryInterface
     public function saveLeave(Vehicle $vehicle): bool;
     public function findByPlate(string $plate): ?Vehicle;
     public function listAll(): array;
-    public function listActive(): array;
 }
