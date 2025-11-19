@@ -17,7 +17,7 @@ class ReportService
 
     public function generateDailyReport(): array
     {
-        $activeVehicles = $this->repository->listActive();
+        $activeVehicles = $this->repository->listAll();
         $report = [];
 
         foreach ($activeVehicles as $vehicle) {
