@@ -118,6 +118,16 @@ class ParkingRepository implements ParkingRepositoryInterface
         return $this->readAll();
     }
 
+    /**
+     * @return Vehicle[]
+     */
+    public function listActive(): array
+    {
+        $records = $this->readAll();
+        $active = array_filter($records, fn($v) => $v->leaveTime === null);
+        return array_values($active);
+    }
+
     private function vehicleToArray(Vehicle $v): array
     {
         return [
