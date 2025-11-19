@@ -1,5 +1,8 @@
 <?php
 
-interface TariffInterface {
-    public function calculatePrice(DateTime $entry, Datetime $leave): float;
+namespace App\Domain\Interfaces;
+
+interface TariffInterface
+{
+    public function calculate(int $hours): float;
 }

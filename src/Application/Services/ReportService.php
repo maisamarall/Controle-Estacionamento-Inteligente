@@ -1,34 +1,33 @@
-<?php 
-
+<?php
 declare(strict_types=1);
 
 namespace App\Application\Services;
 
-use App\Domain\Interfaces\ParkingRepositoryInterface;
+use App\Domain\Interfaces\ParkingRecordRepositoryInterface;
+use App\Domain\Interfaces\VehicleRepositoryInterface;
 
-class ReportService
+final class ReportService
 {
-    private ParkingRepositoryInterface $repository;
+    public function __construct(
+        private ParkingRecordRepositoryInterface $recordRepo,
+        private VehicleRepositoryInterface $vehicleRepo
+    ){}
 
-    public function __construct(ParkingRepositoryInterface $repository)
+    public function generateReportByType(): array
     {
-        $this->repository = $repository;
-    }
+        $records = $this->recordRepo->findAll();
+        $acc = [];
 
-    public function generateDailyReport(): array
-    {
-        $activeVehicles = $this->repository->listAll();
-        $report = [];
-
-        foreach ($activeVehicles as $vehicle) {
-            $report[] = [
-                'id' => $vehicle->getId(),
-                'plate' => $vehicle->getPlate(),
-                'type' => $vehicle->getType(),
-                'entry_time' => $vehicle->getEntryTime()->format('Y-m-d H:i:s'),
-            ];
+        foreach ($records as $r) {
+            if (!$r->hasLeft()) continue; 
+            $vehicle = $this->vehicleRepo->getById($r->vehicleId);
+            if (!$vehicle) continue;
+            $type = strtolower($vehicle->type);
+            if (!isset($acc[$type])) $acc[$type] = ['count' => 0, 'revenue' => 0.0];
+            $acc[$type]['count'] += 1;
+            $acc[$type]['revenue'] += $r->price;
         }
 
-        return $report;
+        return $acc;
     }
 }
