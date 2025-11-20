@@ -38,40 +38,40 @@ Controle-Estacionamento-Inteligente/
 ├─ public/ | # Camada de apresentação acessada pelo navegador |
 │ └─ index.php  | # Página Inicial que mostra o Menu para direcionar para tela de cadastro de entrada e saída de veículo e também a de relatório |
 │ └─ register_entry.php | # Página com formuário para Cadastro de entrada de véiculo |
-| └─  register_exit.php | # Página com formuário para Cadastro de saída de véiculo |
-| └─  register_entry.php | # Página com formuário para Cadastro de entrada de véiculo |
-| └─  report.php | # Página para vizualizar entrada e saída dos véiculos |
+| └─ register_exit.php | # Página com formuário para Cadastro de saída de véiculo |
+| └─ register_entry.php | # Página com formuário para Cadastro de entrada de véiculo |
+| └─ report.php | # Página para vizualizar entrada e saída dos véiculos |
 ├─ src/
 | ├─ Application/ Services/
 | └─ ParkingService.php | # Orquestra as regras de negócios para cadastrar entrada e saída de veículos |
 | └─ ReportService.php | # Orquestra as regras de negócios do relatório de entrada e saída de veículos |
 │ ├─ Domain/ | # Entidades, Interfaces e Contratos
 | ├─  Entities/
-| | | └─ ParkingRecord.php |
-| | | └─ Tariff.php |
-| | | └─ Vehicle.php |
+| └─ ParkingRecord.php |
+| └─ Tariff.php |
+| └─ Vehicle.php |
 | ├─  Interfaces/
-| | | └─ ParkingRecordRepositoryInterface.php |
-| | | └─ ParkingRepositoryInterface.php |
-| | | └─ TariffInterface.php |
-| | | └─ VehicleRepositoryInterface.php
+| └─ ParkingRecordRepositoryInterface.php |
+| └─ ParkingRepositoryInterface.php |
+| └─ TariffInterface.php |
+| └─ VehicleRepositoryInterface.php
 | ├─  Tariffs/
-| | | └─ CarTariff.php |
-| | | └─ MotorcycleTariff.php |
-| | | └─ TruckTariff.php |
+| └─ CarTariff.php |
+| └─ MotorcycleTariff.php |
+| └─ TruckTariff.php |
 | ├─  ValueObjects/
-| | | └─ TariffFactory.php |
-| | | └─ VehicleType.php |
-| | └─ TariffFactory.php |
+| └─ TariffFactory.php |
+| └─ VehicleType.php |
+| └─ TariffFactory.php |
 │ ├─  Infra/
-| | ├─  Repositories/ | Repositórios do projeto
-| | └─ ParkingRecordRepositoryInterface.php |
-| | └─ ParkingRepository.php |
-| | └─ VehicleRepository.php |
+| ├─  Repositories/ | # Repositórios do projeto
+| └─ ParkingRecordRepositoryInterface.php |
+| └─ ParkingRepository.php |
+| └─ VehicleRepository.php |
 ├─ storage/ 
-|  └─  parking.jsonl | JSON por linha contendo a lista dos véiculos que entram e saem do estacionamento |
+| └─ parking.jsonl | # JSON por linha contendo a lista dos véiculos que entram e saem do estacionamento |
 └─ vendor/
-| └─ autoload.php        # Autoloader simples gerado pelo Composer
+| └─ autoload.php  | # Autoloader simples gerado pelo Composer
 
 ---
 
@@ -118,7 +118,7 @@ Controle-Estacionamento-Inteligente/
    git clone https://github.com/maisamarall/Controle-Estacionamento-Inteligente.git
    ```
 
-   2. Acessar a pasta:
+2. Acessar a pasta:
 
    ```bash
    cd Controle-Estacionamento-Inteligente
@@ -155,4 +155,26 @@ Controle-Estacionamento-Inteligente/
 ## 💻 Demonstrativo
 
 ### Tela Inicial do projeto
-<img width="447" height="365" alt="Captura de tela 2025-11-19 220634" src="https://github.com/user-attachments/assets/c0ee824a-5a09-4862-a0c0-f94486c246fa" />
+
+### Tela de Registrar Entrada de Veículo
+
+### Tela de Registrar Saída de Veículo
+
+### Tela de Relatório do Estacionamento
+
+---
+
+### 🧑‍🎓 Participantes do Grupo
+
+| Nome do Discente | RA        |
+| ---------------- | --------- |
+| Jênie Danielle  | 1993310 |
+| Maisa Amaral    | 1997058 |
+| Samara Adorno     | 2001639 |
+| Simone Siqueira  | 2001915 |
+---
+
+---
+###  🎓 Disciplina
+
+**DESIGN PATTERNS E CLEAN CODE - Profº Valdir Junior**
