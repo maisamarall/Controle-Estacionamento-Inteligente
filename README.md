@@ -152,6 +152,16 @@ Controle-Estacionamento-Inteligente/
 
 ---
 
+### 🧑‍🎓 Participantes do Grupo
+
+| Nome do Discente | RA        |
+| ---------------- | --------- |
+| Jênie Danielle  | 1993310 |
+| Maisa Amaral    | 1997058 |
+| Samara Adorno     | 2001639 |
+| Simone Siqueira  | 2001915 |
+---
+
 ## 💻 Demonstrativo
 
 ### Tela Inicial do projeto
@@ -162,16 +172,6 @@ Controle-Estacionamento-Inteligente/
 
 ### Tela de Relatório do Estacionamento
 
----
-
-### 🧑‍🎓 Participantes do Grupo
-
-| Nome do Discente | RA        |
-| ---------------- | --------- |
-| Jênie Danielle  | 1993310 |
-| Maisa Amaral    | 1997058 |
-| Samara Adorno     | 2001639 |
-| Simone Siqueira  | 2001915 |
 ---
 
 ---
