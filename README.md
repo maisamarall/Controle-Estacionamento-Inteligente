@@ -46,28 +46,28 @@ Controle-Estacionamento-Inteligente/
 | └─ ParkingService.php | # Orquestra as regras de negócios para cadastrar entrada e saída de veículos |
 | └─ ReportService.php | # Orquestra as regras de negócios do relatório de entrada e saída de veículos |
 │ ├─ Domain/ | # Entidades, Interfaces e Contratos
-| | ├─  Entities/
+| ├─  Entities/
 | | | └─ ParkingRecord.php |
 | | | └─ Tariff.php |
 | | | └─ Vehicle.php |
-| | ├─  Interfaces/
+| ├─  Interfaces/
 | | | └─ ParkingRecordRepositoryInterface.php |
 | | | └─ ParkingRepositoryInterface.php |
 | | | └─ TariffInterface.php |
 | | | └─ VehicleRepositoryInterface.php
-| | ├─  Tariffs/
+| ├─  Tariffs/
 | | | └─ CarTariff.php |
 | | | └─ MotorcycleTariff.php |
 | | | └─ TruckTariff.php |
-| | ├─  ValueObjects/
+| ├─  ValueObjects/
 | | | └─ TariffFactory.php |
 | | | └─ VehicleType.php |
 | | └─ TariffFactory.php |
-│  └─ Infra/
+│ ├─  Infra/
 | | ├─  Repositories/ | Repositórios do projeto
-| | | └─ ParkingRecordRepositoryInterface.php |
-| | | └─ ParkingRepository.php |
-| | | └─ VehicleRepository.php |
+| | └─ ParkingRecordRepositoryInterface.php |
+| | └─ ParkingRepository.php |
+| | └─ VehicleRepository.php |
 ├─ storage/ 
 |  └─  parking.jsonl | JSON por linha contendo a lista dos véiculos que entram e saem do estacionamento |
 └─ vendor/
@@ -111,3 +111,48 @@ Controle-Estacionamento-Inteligente/
 ---
 
 ## ▶ Como Executar o Projeto
+
+1. Clone o repositório na pasta htdocs do xampp:
+
+   ```bash
+   git clone https://github.com/maisamarall/Controle-Estacionamento-Inteligente.git
+   ```
+
+   2. Acessar a pasta:
+
+   ```bash
+   cd Controle-Estacionamento-Inteligente
+   ```
+
+3. Instalar as dependências e gerar autoload:
+     ```bash
+     composer install
+     composer dump 
+     ```
+     
+4. Acessar no navegador:
+
+     ```bash
+     http://localhost/Controle-Estacionamento-Inteligente/public/index.php
+     ```
+
+---
+
+## 🧠 Conceitos Aplicados
+
+### * SOLID
+### * DRY (nenhuma lógica duplicada)
+### * KISS (implementação simples e direta)
+### * Object Calisthenics
+- classes pequenas
+- métodos curtos
+- nomes expressivos
+### * PSR-4 e PSR-12
+### * Arquitetura Limpa
+
+---
+
+## 💻 Demonstrativo
+
+### Tela Inicial do projeto
+<img width="447" height="365" alt="Captura de tela 2025-11-19 220634" src="https://github.com/user-attachments/assets/c0ee824a-5a09-4862-a0c0-f94486c246fa" />
