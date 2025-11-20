@@ -164,15 +164,14 @@ Controle-Estacionamento-Inteligente/
 
 ## 💻 Demonstrativo
 
-### Tela Inicial do projeto
-
 ### Tela de Registrar Entrada de Veículo
+<img width="403" height="356" alt="image" src="https://github.com/user-attachments/assets/14d62778-0d2f-485a-ab03-429351641264" />
 
 ### Tela de Registrar Saída de Veículo
+<img width="397" height="279" alt="image" src="https://github.com/user-attachments/assets/84b08200-d5e0-44d7-bbc9-f90a67bc40e8" />
 
 ### Tela de Relatório do Estacionamento
-
----
+<img width="975" height="802" alt="image" src="https://github.com/user-attachments/assets/ee6e7035-55c1-4293-ae73-724b1612420f" />
 
 ---
 ###  🎓 Disciplina
