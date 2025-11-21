@@ -51,7 +51,7 @@ Controle-Estacionamento-Inteligente/
 | └─ Tariff.php |
 | └─ Vehicle.php |
 | ├─  Interfaces/
-| └─ ParkingRecordRepositoryInterface.php |
+|└─ ParkingRecordRepositoryInterface.php |
 | └─ ParkingRepositoryInterface.php |
 | └─ TariffInterface.php |
 | └─ VehicleRepositoryInterface.php
