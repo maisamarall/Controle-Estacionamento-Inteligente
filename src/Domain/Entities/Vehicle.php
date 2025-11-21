@@ -12,6 +12,7 @@ class Vehicle
     public string $type;
     public DateTime $entryTime;
     public ?DateTime $leaveTime;
+    public float $price = 0.0;
 
     public function __construct(string $plate, string $type)
     {

@@ -49,6 +49,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             <form method="POST" class="space-y-5">
 
                 <div>
+                    <label class="block font-semibold">Tipo de veículo:</label>
+                    <select id="vehicleType" name="type" class="border p-2 rounded w-full" required>
+                        <option value="">Selecione...</option>
+                        <option value="carro">Carro</option>
+                        <option value="moto">Moto</option>
+                        <option value="caminhao">Caminhão</option>
+                    </select>
+                </div>
+
+                <div>
                     <label class="block text-gray-700 font-medium mb-1">Placa</label>
                     <input type="text" name="plate" required
                         class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 outline-none">

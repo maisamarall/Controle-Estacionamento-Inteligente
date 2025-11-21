@@ -50,3 +50,20 @@
 </body>
 
 </html>
+
+<script>
+document.getElementById("vehicleType").addEventListener("change", function() {
+    const type = this.value;
+
+    fetch("list_by_type.php?type=" + type)
+        .then(res => res.json())
+        .then(data => {
+            const plateSelect = document.getElementById("plateSelect");
+            plateSelect.innerHTML = "<option value=''>Selecione...</option>";
+
+            data.forEach(v => {
+                plateSelect.innerHTML += `<option value="${v.plate}">${v.plate}</option>`;
+            });
+        });
+});
+</script>

@@ -82,7 +82,9 @@ class ParkingRepository implements ParkingRepositoryInterface
         $newList = array_map(function ($v) use ($vehicle, &$updated) {
             if ($v->id === $vehicle->id) {
                 $updated = true;
-                $v->leaveTime = $vehicle->leaveTime ?? new DateTime();
+               
+                $v->leaveTime = $vehicle->leaveTime ?? new \DateTime();
+                $v->price = $vehicle->price ?? ($v->price ?? 0.0);
                 return $v;
             }
             return $v;
@@ -126,19 +128,46 @@ class ParkingRepository implements ParkingRepositoryInterface
             'type'       => $v->type,
             'entryTime'  => $v->entryTime?->format('Y-m-d H:i:s'),
             'leaveTime'  => $v->leaveTime?->format('Y-m-d H:i:s'),
+            'price' => isset($v->price) ? (float)$v->price : 0.0
         ];
     }
 
-    private function arrayToVehicle(array $data): Vehicle
-    {
-        $vehicle = new Vehicle($data['plate'], $data['type']);
-        $vehicle->id = $data['id'];
-        $vehicle->entryTime = new DateTime($data['entryTime']);
-
-        $vehicle->leaveTime = isset($data['leaveTime']) && $data['leaveTime']
-            ? new DateTime($data['leaveTime'])
-            : null;
-
-        return $vehicle;
+   private function parseDateTime(?string $s): ?\DateTime
+   {
+    if (empty($s)) {
+        return null;
     }
+
+    // Tenta ISO padrão primeiro
+    $dt = \DateTime::createFromFormat('Y-m-d H:i:s', $s);
+    if ($dt !== false) return $dt;
+
+    // Tenta com minutos (às vezes você tem 'd/m/Y H:i')
+    $dt = \DateTime::createFromFormat('d/m/Y H:i', $s);
+    if ($dt !== false) return $dt;
+
+    // Tenta formato 'd/m/Y H:i:s'
+    $dt = \DateTime::createFromFormat('d/m/Y H:i:s', $s);
+    if ($dt !== false) return $dt;
+
+    // Tenta construtor geral (pode falhar se string inválida)
+    try {
+        return new \DateTime($s);
+    } catch (\Exception $e) {
+        return null;
+    }
+}
+
+private function arrayToVehicle(array $data): Vehicle
+{
+    $vehicle = new Vehicle($data['plate'], $data['type']);
+    $vehicle->id = $data['id'];
+    $vehicle->entryTime = $this->parseDateTime($data['entryTime']) ?? new \DateTime();
+
+    $vehicle->leaveTime = $this->parseDateTime($data['leaveTime']);
+
+    $vehicle->price = isset($data['price']) ? (float)$data['price'] : 0.0;
+
+    return $vehicle;
+   }
 }

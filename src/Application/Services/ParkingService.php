@@ -35,10 +35,11 @@ class ParkingService
 
         $hours = $this->calculateHours($vehicle->entryTime, $vehicle->leaveTime);
 
-        // Usa a factory corretamente
-        $tariff = TariffFactory::create($vehicle->type);
-        $price = $tariff->calculate($hours);
+       $tariff = TariffFactory::create($vehicle->type);
+       $price = $tariff->calculate($hours);
 
+       $vehicle->price = $price;
+       
         $this->repository->saveLeave($vehicle);
 
         return $price;
@@ -69,21 +70,16 @@ class ParkingService
                 continue;
             }
 
-            // conta
             $summary[$type]['count']++;
 
-            // sem saída = não conta faturamento
             if (empty($v->leaveTime)) {
                 continue;
             }
 
-            // horas
             $hours = $this->calculateHours($v->entryTime, $v->leaveTime);
 
-            // tarifa pelo tipo
             $tariff = TariffFactory::create($type);
 
-            // soma ao faturamento
             $summary[$type]['revenue'] += $tariff->calculate($hours);
         }
 

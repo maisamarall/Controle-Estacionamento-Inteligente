@@ -17,21 +17,24 @@ $reportService = new ReportService($recordRepo, $vehicleRepo);
 
 $data = $parkingService->listAll(); 
 $summary = $reportService->generateReportByType();
-$totalRevenue = $summary['total']['revenue'] ?? 0.0;
 
-unset($summary['total']);
+$vehicleTypes = ['carro', 'moto', 'caminhao'];
+
+$totalRevenue = 0.0;
+foreach ($vehicleTypes as $t) {
+    $totalRevenue += $summary[$t]['revenue'] ?? 0.0;
+}
 
 $totalEntries = count($data);
+
 $totalExits = 0;
 foreach ($data as $v) {
-    if ($v->leaveTime !== null) {
+    if ($v->leaveTime instanceof DateTime) {
         $totalExits++;
     }
 }
+
 $vehiclesInParking = $totalEntries - $totalExits;
-
-
-$vehicleTypes = ['carro', 'moto', 'caminhao'];
 
 ?>
 
@@ -76,7 +79,11 @@ $vehicleTypes = ['carro', 'moto', 'caminhao'];
                                 <?= $v->entryTime?->format('d/m/Y H:i') ?>
                             </td>
                             <td class="px-4 py-3">
-                                <?= $v->leaveTime?->format('d/m/Y H:i') ?? '<span class="text-red-600 font-semibold">Ainda no pátio</span>' ?>
+                                <?php if ($v->leaveTime instanceof \DateTime): ?>
+                                    <?= $v->leaveTime->format('d/m/Y H:i') ?>
+                                    <?php else: ?>
+                                        <span class="text-red-600 font-semibold">Ainda no pátio</span>
+                                        <?php endif; ?>
                             </td>
                             <td class="px-4 py-3 text-left font-bold text-green-700">
                                 R$ <?= number_format($v->price ?? 0.0, 2, ',', '.') ?>
@@ -95,37 +102,46 @@ $vehicleTypes = ['carro', 'moto', 'caminhao'];
                     <tr class="font-extrabold text-lg text-gray-900 bg-blue-100 border-b-2 border-gray-600">
                         <td class="px-4 py-3" colspan="2">Total Geral</td>
                         <td class="px-4 py-3 text-left border-l border-r border-blue-200">
-                            <?= $totalEntries ?> Entradas
+                            <?= (int) $totalEntries ?> Entradas
                         </td>
+        
                         <td class="px-4 py-3 text-left border-r border-blue-200">
-                            <?= $totalExits ?> Saídas
+                            <?= (int) $totalExits ?> Saídas
                         </td>
+        
                         <td class="px-4 py-3 text-left text-green-700">
-                            R$ <?= number_format($totalRevenue, 2, ',', '.') ?>
+                            R$ <?= number_format((float)$totalRevenue, 2, ',', '.') ?>
                         </td>
                     </tr>
-
-        
+    
+                    <tr class="text-sm bg-gray-50">
+                        <td class="px-4 py-2" colspan="5">
+                            <strong>Veículos no pátio:</strong> <?= (int)$vehiclesInParking ?>
+                        </td>
+                    </tr>
+    
                     <tr class="font-bold text-md text-gray-900 bg-gray-100 border-b-2 border-gray-600">
                         <td class="px-4 py-2 font-bold text-gray-800" colspan="5">Resumo de Faturamento por Tipo de Veículo:</td>
                     </tr>
-                    
+    
                     <?php foreach ($vehicleTypes as $type): ?>
-                        <?php 
-                            $revenue = $summary[$type]['revenue'] ?? 0.0;
-                            $count = $summary[$type]['count'] ?? 0;
+                        <?php
+                        $key = strtolower($type);
+                        $revenue = isset($summary[$key]['revenue']) ? (float)$summary[$key]['revenue'] : 0.0;
+                        $count   = isset($summary[$key]['count']) ? (int)$summary[$key]['count'] : 0;
                         ?>
-                        <tr class="font-semibold text-sm hover:bg-gray-50">
-                            <td class="px-4 py-2 capitalize text-gray-600" colspan="4">
-                                &nbsp;&nbsp;&nbsp;Faturamento de **<?= $type ?>** (<?= $count ?> Movimentações)
-                            </td>
-                            
-                            <td class="px-4 py-2 text-left font-semibold text-indigo-700">
-                                R$ <?= number_format($revenue, 2, ',', '.') ?>
-                            </td>
-                        </tr>
-                    <?php endforeach; ?>
-                </tfoot>
+                        
+                    <tr class="font-semibold text-sm hover:bg-gray-50">
+                        <td class="px-4 py-2 capitalize text-gray-600" colspan="4">
+                            &nbsp;&nbsp;&nbsp;Faturamento de <?= htmlspecialchars(ucfirst($key)) ?> (<?= $count ?> Movimentações)
+                    </td>
+            
+                    <td class="px-4 py-2 text-left font-semibold text-indigo-700">
+                        R$ <?= number_format($revenue, 2, ',', '.') ?>
+                    </td>
+                </tr>
+                <?php endforeach; ?>
+            </tfoot>
             </table>
         </div>
 

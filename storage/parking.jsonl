@@ -1,8 +1,9 @@
-{"id":1,"plate":"123","type":"carro","entryTime":"2025-11-19 12:10:25","leaveTime":"2025-11-19 12:11:37"}
-{"id":2,"plate":"teste","type":"carro","entryTime":"2025-11-19 15:32:11","leaveTime":null}
-{"id":3,"plate":"12","type":"moto","entryTime":"2025-11-19 15:32:18","leaveTime":null}
-{"id":4,"plate":"13","type":"caminhao","entryTime":"2025-11-19 15:32:25","leaveTime":null}
-{"id":5,"plate":"QTR-8F29","type":"moto","entryTime":"2025-11-19 20:05:50","leaveTime":null}
-{"id":6,"plate":"QTR-8F29","type":"moto","entryTime":"2025-11-19 20:09:35","leaveTime":null}
-{"id":7,"plate":"QHR-2J48","type":"moto","entryTime":"2025-11-19 20:10:21","leaveTime":"2025-11-19 20:25:13"}
-{"id":8,"plate":"test","type":"carro","entryTime":"2025-11-19 21:05:05","leaveTime":"2025-11-19 21:06:21"}
+{"id":1,"plate":"123","type":"carro","entryTime":"2025-11-19 12:10:25","leaveTime":"2025-11-19 12:11:37","price":0}
+{"id":2,"plate":"teste","type":"carro","entryTime":"2025-11-19 15:32:11","leaveTime":"2025-11-20 22:01:57","price":0}
+{"id":3,"plate":"12","type":"moto","entryTime":"2025-11-19 15:32:18","leaveTime":"2025-11-20 22:05:44","price":0}
+{"id":4,"plate":"13","type":"caminhao","entryTime":"2025-11-19 15:32:25","leaveTime":"2025-11-21 02:08:20","price":350}
+{"id":5,"plate":"QTR-8F29","type":"moto","entryTime":"2025-11-19 20:05:50","leaveTime":null,"price":0}
+{"id":6,"plate":"QTR-8F29","type":"moto","entryTime":"2025-11-19 20:09:35","leaveTime":"2025-11-21 02:37:16","price":93}
+{"id":7,"plate":"QHR-2J48","type":"moto","entryTime":"2025-11-19 20:10:21","leaveTime":"2025-11-19 20:25:13","price":0}
+{"id":8,"plate":"test","type":"carro","entryTime":"2025-11-19 21:05:05","leaveTime":"2025-11-19 21:06:21","price":0}
+{"id":9,"plate":"RKT4J92","type":"caminhao","entryTime":"2025-11-20 21:46:34","leaveTime":"2025-11-20 21:47:01","price":0}
