@@ -64,14 +64,14 @@ Controle-Estacionamento-Inteligente/
 | └─ VehicleType.php |
 | └─ TariffFactory.php |
 │ ├─  Infra/
-| ├─  Repositories/ | # Repositórios do projeto
-| └─ ParkingRecordRepositoryInterface.php |
+| ├─  Repositories/ | # Repositórios do projeto |
+| └─ ParkingRecordFileRepository.php |
 | └─ ParkingRepository.php |
 | └─ VehicleRepository.php |
 ├─ storage/ 
 | └─ parking.jsonl | # JSON por linha contendo a lista dos véiculos que entram e saem do estacionamento |
 └─ vendor/
-| └─ autoload.php  | # Autoloader simples gerado pelo Composer
+| └─ autoload.php  | # Autoloader simples gerado pelo Composer |
 
 ---
 
@@ -163,6 +163,10 @@ Controle-Estacionamento-Inteligente/
 ---
 
 ## 💻 Demonstrativo
+
+### Tela Inicial
+<img width="410" height="365" alt="Sem título" src="https://github.com/user-attachments/assets/b8df674a-9d04-4fd0-b36a-b90b22d06d33" />
+
 
 ### Tela de Registrar Entrada de Veículo
 <img width="403" height="356" alt="image" src="https://github.com/user-attachments/assets/14d62778-0d2f-485a-ab03-429351641264" />
